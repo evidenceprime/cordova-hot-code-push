@@ -24,15 +24,10 @@ As a result, your application receives updates of the web content as soon as pos
 
 ### Installation
 
-This requires cordova 5.0+ (current stable 1.5.3)
+This requires cordova 5.0+ (current stable 1.5.4)
 
 ```sh
-cordova plugin add cordova-hot-code-push-plugin
-```
-
-It is also possible to install via repo url directly (__unstable__)
-```sh
-cordova plugin add https://github.com/nordnet/cordova-hot-code-push.git
+cordova plugin add https://github.com/evidenceprime/cordova-hot-code-push.git#1.5.4
 ```
 
 At the end of the installation plugin will recommend you to install [Cordova Hot Code Push CLI client](https://github.com/nordnet/cordova-hot-code-push-cli). This client will help you to:

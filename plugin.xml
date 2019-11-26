@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="cordova-hot-code-push-plugin" version="1.5.3" 
+<plugin id="cordova-hot-code-push-plugin" version="1.5.4"
   xmlns="http://apache.org/cordova/ns/plugins/1.0" 
   xmlns:android="http://schemas.android.com/apk/res/android">
   <name>Hot Code Push Plugin</name>
@@ -14,7 +14,7 @@
     <engine name="cordova-plugman" version=">=4.2.0"></engine>
     <!-- needed for gradleReference support -->
   </engines>
-  <!-- JavaScrip Library Sources -->
+  <!-- JavaScript Library Sources -->
   <js-module name="chcp" src="www/chcp.js">
     <clobbers target="chcp"/>
   </js-module>
