@@ -1,5 +1,7 @@
 package com.nordnetab.chcp.main;
 
+import static com.nordnetab.chcp.main.handler.CHCPPathHandler.CHCP_PLUGIN_PATH;
+
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -20,6 +22,7 @@ import com.nordnetab.chcp.main.events.UpdateDownloadErrorEvent;
 import com.nordnetab.chcp.main.events.UpdateInstallationErrorEvent;
 import com.nordnetab.chcp.main.events.UpdateInstalledEvent;
 import com.nordnetab.chcp.main.events.UpdateIsReadyToInstallEvent;
+import com.nordnetab.chcp.main.handler.CHCPPathHandler;
 import com.nordnetab.chcp.main.js.JSAction;
 import com.nordnetab.chcp.main.js.PluginResultHelper;
 import com.nordnetab.chcp.main.model.ChcpError;
@@ -43,6 +46,7 @@ import org.apache.cordova.ConfigXmlParser;
 import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaPluginPathHandler;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.greenrobot.eventbus.EventBus;
@@ -62,10 +66,9 @@ import java.util.Map;
  * Plugin main class.
  */
 public class HotCodePushPlugin extends CordovaPlugin {
-
-    private static final String FILE_PREFIX = "file://";
     private static final String WWW_FOLDER = "www";
     private static final String LOCAL_ASSETS_FOLDER = "file:///android_asset/www";
+    private static final String LOCALHOST_PREFIX = "https://localhost/";
 
     private String startingPage;
     private IObjectFileStorage<ApplicationConfig> appConfigStorage;
@@ -85,6 +88,8 @@ public class HotCodePushPlugin extends CordovaPlugin {
     private List<PluginResult> defaultCallbackStoredResults;
     private FetchUpdateOptions defaultFetchUpdateOptions;
 
+    private CordovaPluginPathHandler pluginPathHandler;
+
     // region Plugin lifecycle
 
     @Override
@@ -103,6 +108,7 @@ public class HotCodePushPlugin extends CordovaPlugin {
         fileStructure = new PluginFilesStructure(cordova.getActivity(), pluginInternalPrefs.getCurrentReleaseVersionName());
         appConfigStorage = new ApplicationConfigStorage();
         defaultCallbackStoredResults = new ArrayList<PluginResult>();
+        pluginPathHandler = new CordovaPluginPathHandler(new CHCPPathHandler());
     }
 
     @Override
@@ -618,6 +624,9 @@ public class HotCodePushPlugin extends CordovaPlugin {
 
         // make sure, that index page exists
         String external = Paths.get(fileStructure.getWwwFolder(), strippedIndexPage);
+
+        Log.d("CHCP", "Loading external page: " + external);
+
         if (!new File(external).exists()) {
             Log.d("CHCP", "External starting page not found. Aborting page change.");
             return;
@@ -625,9 +634,7 @@ public class HotCodePushPlugin extends CordovaPlugin {
 
         // load index page from the external source
         external = Paths.get(fileStructure.getWwwFolder(), indexPage);
-        webView.loadUrlIntoView(FILE_PREFIX + external, false);
-
-        Log.d("CHCP", "Loading external page: " + external);
+        webView.loadUrlIntoView(LOCALHOST_PREFIX + CHCP_PLUGIN_PATH + external, false);
     }
 
     /**
@@ -645,6 +652,7 @@ public class HotCodePushPlugin extends CordovaPlugin {
         String url = parser.getLaunchUrl();
 
         startingPage = url.replace(LOCAL_ASSETS_FOLDER, "");
+        startingPage = url.replace(LOCALHOST_PREFIX, "");
 
         return startingPage;
     }
@@ -975,6 +983,15 @@ public class HotCodePushPlugin extends CordovaPlugin {
                 redirectToLocalStorageIndexPage();
             }
         });
+    }
+
+    // endregion
+
+    // region file handler
+
+    @Override
+    public CordovaPluginPathHandler getPathHandler() {
+        return pluginPathHandler;
     }
 
     // endregion
